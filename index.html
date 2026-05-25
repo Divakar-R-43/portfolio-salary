@@ -1,0 +1,67 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BrowserRouter, Routes, Route, Link, useParams } from "react-router-dom";
+
+function Navbar() {
+  return (
+    <div style={{ background: "#222", color: "#fff", padding: "10px" }}>
+      <h2>My Store</h2>
+    </div>
+  );
+}
+
+function Home() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    axios.get("https://fakestoreapi.com/products")
+      .then(res => setProducts(res.data));
+  }, []);
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "20px", padding: "20px" }}>
+      {products.map(p => (
+        <div key={p.id} style={{ border: "1px solid #ccc", padding: "10px" }}>
+          <img src={p.image} height="100" />
+          <h4>{p.title}</h4>
+          <p>₹ {p.price}</p>
+          <Link to={`/product/${p.id}`}>View</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProductDetails() {
+  const { id } = useParams();
+  const [product, setProduct] = useState({});
+
+  useEffect(() => {
+    axios.get(`https://fakestoreapi.com/products/${id}`)
+      .then(res => setProduct(res.data));
+  }, [id]);
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <img src={product.image} height="200" />
+      <h2>{product.title}</h2>
+      <p>{product.description}</p>
+      <h3>₹ {product.price}</h3>
+      <Link to="/">⬅ Back</Link>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
